@@ -2,7 +2,7 @@
 
 ## Overview
 
-This Azure Function App provides a serverless solution for handling user registrations and sending email notifications. The app includes an HTTP-triggered function for user registration and a queue-triggered function for sending emails based on user actions (signup, login, logout, and account updates).
+This Azure Function App provides a serverless solution for handling email requests using queue messages. The app includes an HTTP-triggered function for user registration and a queue-triggered function for sending emails based on user actions (signup, login, logout, and account updates).
 
 ## Features
 
