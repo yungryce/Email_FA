@@ -1,4 +1,4 @@
-# Azure Function App for User Registration and Email Notifications
+# Azure Function App for Email Client
 
 ## Overview
 
