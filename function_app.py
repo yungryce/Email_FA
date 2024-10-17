@@ -1,12 +1,8 @@
 import os
 import json
 import logging
-import base64
 import azure.functions as func
 from azure.storage.queue import QueueClient
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from helper_functions import send_email, generate_confirmation_token
 
 
@@ -48,7 +44,7 @@ async def push_email(msg: func.QueueMessage) -> None:
         await confirm_email(message)
     elif action == 'notify':
         await notify_user(message)
-    elif action == 'deleted_user':
+    elif action == 'delete_user':
         await deleted_user_email(message)
     else:
         logging.warning(f"Unknown action: {action}")
@@ -162,6 +158,7 @@ async def logout_email(message):
            "You can visit your account profile to reset your password or review account activity:\n" \
            "If you have any questions or need further assistance, feel free to contact us.\n\n" \
            "Best regards,\nThe Security Team"
+    logging.error(f"{body}")
 
     # Subject of the email
     subject = "Logout Notification - Your Account"
@@ -363,6 +360,7 @@ async def deleted_user_email(message):
            "If this account deletion was initiated by you, no further action is required.\n\n" \
            "However, if you did not request this deletion, please contact our support team immediately for assistance.\n\n" \
            "Please note that once your account is deleted, all associated data, including personal information, will be permanently removed from our system.\n\n" \
+           "If you would like to reactivate your account or create a new account, please respond to this email and our team will assist you further.\n\n" \
            "If you have any questions or need further assistance, feel free to contact us.\n\n" \
            "Best regards,\nThe Security Team"
 

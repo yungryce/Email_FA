@@ -1,7 +1,5 @@
 import os
-import json
 import logging
-import base64
 import smtplib
 import random
 import string
