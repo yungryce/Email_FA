@@ -3,7 +3,7 @@ import json
 import logging
 import azure.functions as func
 from azure.storage.queue import QueueClient
-from helper_functions import send_email, generate_confirmation_token
+from helper_functions import send_email
 
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
@@ -46,6 +46,10 @@ async def push_email(msg: func.QueueMessage) -> None:
         await notify_user(message)
     elif action == 'delete_user':
         await deleted_user_email(message)
+    elif action == 'forgot_password':
+        await forgot_password_email
+    elif action == 'change_password':
+        await change_password_email(message)
     else:
         logging.warning(f"Unknown action: {action}")
 
@@ -66,15 +70,14 @@ async def register_email(message):
         first_name = message.get('first_name')
         last_name = message.get('last_name')
         username = message.get('username')
+        email_token = message.get('email_token')
 
-        # Generate a confirmation token
-        confirmation_token = generate_confirmation_token()
 
         # Compose the email content
         subject = "Welcome to Our Platform!"
         body = f"Dear {first_name} {last_name},\n\n" \
                f"Thank you for registering with us! Your username is {username}.\n" \
-               f"Your confirmation token is: {confirmation_token}\n\n" \
+               f"Your confirmation token is: {email_token}\n\n" \
                "We are excited to have you on board. If you have any questions, feel free to contact us.\n\n" \
                "Best regards,\nThe Team"
 

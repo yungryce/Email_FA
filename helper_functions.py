@@ -1,8 +1,6 @@
 import os
 import logging
 import smtplib
-import random
-import string
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -38,24 +36,3 @@ def send_email(to_email, subject, body):
     except Exception as e:
         logging.error(f"Failed to send email: {str(e)}")
 
-
-def generate_confirmation_token(length=6):
-    """
-    Generates a random confirmation token.
-
-    The token consists of uppercase letters, lowercase letters, digits, 
-    and allowed special characters.
-
-    Args:
-        length (int): The length of the token to be generated. Default is 6.
-
-    Returns:
-        str: A randomly generated token of the specified length.
-    """
-    # Define the character pool for the token
-    allowed_characters = string.ascii_uppercase + string.ascii_lowercase + string.digits + "!@#$%^&*"
-    
-    # Randomly select characters from the allowed pool
-    token = ''.join(random.choice(allowed_characters) for _ in range(length))
-    
-    return token
