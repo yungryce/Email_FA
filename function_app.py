@@ -38,18 +38,18 @@ async def push_email(msg: func.QueueMessage) -> None:
         await login_email(message)
     elif  action == 'logout':
         await logout_email(message)
-    elif action == 'reset':
-        await reset_password_email(message)
-    elif action == 'confirm':
-        await confirm_email(message)
+    elif action == 'delete_user':
+        await delete_user_email(message)
+    elif action == 'confirm_email':
+        await verify_email(message)
     elif action == 'notify':
         await notify_user(message)
-    elif action == 'delete_user':
-        await deleted_user_email(message)
     elif action == 'forgot_password':
         await forgot_password_email
     elif action == 'change_password':
         await change_password_email(message)
+    elif action == 'resend_confirmation_token':
+        await resend_confirmation_token_email(message)
     else:
         logging.warning(f"Unknown action: {action}")
 
@@ -120,6 +120,8 @@ async def login_email(message):
             "Please visit your account profile to reset your password:\n" \
             "If you have any questions or need further assistance, feel free to contact us.\n\n" \
             "Best regards,\nThe Security Team"
+        
+        logging.warning(body)
 
         # Send the email using the send_email helper function
         send_email(to_email, subject, body)
@@ -173,6 +175,7 @@ async def logout_email(message):
     except Exception as e:
         logging.error(f"Failed to send logout email to {email}: {str(e)}")
 
+
 async def delete_user_email(message):
     """
     Sends an email notification to the user upon account deletion.
@@ -215,49 +218,76 @@ async def delete_user_email(message):
         logging.error(f"Failed to send account deletion email to {email}: {str(e)}")
 
 
-async def reset_password_email(message):
+async def forgot_password_email(message):
     """
-    Sends an email to the user with a password reset link.
-
+    Sends a forgot password email to the user.
+    
     Args:
-        message (dict): A dictionary containing user data and action details, including:
-                        - username
-                        - email
-                        - first_name
-                        - last_name
-                        - reset_link
-
+        message (dict): The message containing user details (from the queue).
+        
     Returns:
         None
     """
-    # Extract user details from the message
-    username = message.get('username')
-    email = message.get('email')
-    first_name = message.get('first_name')
-    last_name = message.get('last_name')
-    reset_link = message.get('reset_link')  # Ensure this is passed in the message
-
-    # Email body with password reset link
-    body = f"Dear {first_name} {last_name},\n\n" \
-           f"We received a request to reset the password for your account (Username: {username}).\n\n" \
-           "To reset your password, please click on the following link:\n" \
-           f"{reset_link}\n\n" \
-           "If you did not request a password reset, please ignore this email.\n\n" \
-           "If you have any questions or need further assistance, feel free to contact us.\n\n" \
-           "Best regards,\nThe Support Team"
-
-    # Subject of the email
-    subject = "Password Reset Request"
-
-    # Send the email using the send_email function
     try:
-        send_email(to_email=email, subject=subject, body=body)
-        logging.info(f"Password reset email sent to {email} successfully.")
+        # Extract user data from the message
+        to_email = message.get('email')
+        email_token = message.get('email_token')
+        token_expires_at = message.get('token_expires_at')
+        
+        # Compose the email content
+        subject = "Password Reset Request"
+        body = f"Dear User,\n\n" \
+               f"We received a request to reset your password.\n" \
+               f"Your password reset token is: {email_token}\n" \
+               f"This token will expire on {token_expires_at}.\n\n" \
+               f"If you did not request this, please ignore this email. " \
+               f"Otherwise, use the token to reset your password.\n\n" \
+               "Best regards,\nThe Team"
+        
+        # Send the email using the send_email helper function
+        send_email(to_email, subject, body)
+
+        logging.info(f"Password reset email sent successfully to {to_email}.")
     except Exception as e:
-        logging.error(f"Failed to send password reset email to {email}: {str(e)}")
+        logging.error(f"Failed to send password reset email: {str(e)}")
 
 
-async def confirm_email(message):
+async def change_password_email(message):
+    """
+    Sends an email to the user after they successfully change their password.
+    
+    Args:
+        message (dict): The message containing user details (from the queue).
+        
+    Returns:
+        None
+    """
+    try:
+        # Extract user data from the message
+        to_email = message.get('email')
+        username = message.get('username')
+        change_time = message.get('change_time')  # Assuming change_time is included in the message
+        login_ip = message.get('login_ip')  # IP address from where the change was made
+
+        # Compose the email content
+        subject = "Your Password Has Been Changed"
+        body = f"Dear {username},\n\n" \
+               f"This is a confirmation that your password was successfully changed on {change_time}.\n" \
+               f"If this change was made by you, no further action is required.\n\n" \
+               f"If you did not change your password or you suspect any suspicious activity, please contact our support team immediately.\n" \
+               f"Login IP Address: {login_ip}\n\n" \
+               "Best regards,\nThe Team"
+        
+        # Send the email using the send_email helper function
+        send_email(to_email, subject, body)
+
+        logging.info(f"Password change confirmation email sent successfully to {to_email}.")
+    except Exception as e:
+        logging.error(f"Failed to send password change confirmation email: {str(e)}")
+
+
+
+async def verify_email(message):
     """
     Sends an email to the user to confirm their registration.
 
@@ -293,6 +323,41 @@ async def confirm_email(message):
         logging.info(f"Registration confirmation email sent to {email} successfully.")
     except Exception as e:
         logging.error(f"Failed to send registration confirmation email to {email}: {str(e)}")
+
+
+
+async def resend_confirmation_token_email(message):
+    """
+    Sends an email to the user with a new email confirmation token.
+    
+    Args:
+        message (dict): The message containing user details (from the queue).
+        
+    Returns:
+        None
+    """
+    try:
+        # Extract user data from the message
+        to_email = message.get('email')
+        username = message.get('username')
+        email_token = message.get('email_token')
+
+        # Compose the email content
+        subject = "Resend: Confirm Your Email Address"
+        body = f"Dear {username},\n\n" \
+               f"It seems you requested a new email confirmation token. Your confirmation token is:\n\n" \
+               f"Token: {email_token}\n\n" \
+               "Please use this token to confirm your email address.\n\n" \
+               "If you did not request this, please ignore this email or contact our support team.\n\n" \
+               "Best regards,\nThe Team"
+
+        # Send the email using the send_email helper function
+        send_email(to_email, subject, body)
+
+        logging.info(f"Resend confirmation email sent successfully to {to_email}.")
+    except Exception as e:
+        logging.error(f"Failed to send resend confirmation email: {str(e)}")
+
 
 
 async def notify_user(message):
@@ -335,46 +400,5 @@ async def notify_user(message):
         logging.error(f"Failed to send notification email to {email}: {str(e)}")
 
 
-async def deleted_user_email(message):
-    """
-    Sends an email notification to the user upon account deletion.
-
-    Args:
-        message (dict): A dictionary containing user data and action details, including:
-                        - username
-                        - email
-                        - first_name
-                        - last_name
-                        - deletion_time
-
-    Returns:
-        None
-    """
-    # Extract user details from the message
-    username = message.get('username')
-    email = message.get('email')
-    first_name = message.get('first_name')
-    last_name = message.get('last_name')
-    deletion_time = message.get('deletion_time')  # Ensure this is passed in the message
-
-    # Email body with account deletion notification
-    body = f"Dear {first_name} {last_name},\n\n" \
-           f"We want to confirm that your account (Username: {username}) has been successfully deleted on {deletion_time}.\n\n" \
-           "If this account deletion was initiated by you, no further action is required.\n\n" \
-           "However, if you did not request this deletion, please contact our support team immediately for assistance.\n\n" \
-           "Please note that once your account is deleted, all associated data, including personal information, will be permanently removed from our system.\n\n" \
-           "If you would like to reactivate your account or create a new account, please respond to this email and our team will assist you further.\n\n" \
-           "If you have any questions or need further assistance, feel free to contact us.\n\n" \
-           "Best regards,\nThe Security Team"
-
-    # Subject of the email
-    subject = "Account Deletion Confirmation"
-
-    # Send the email using the send_email function
-    try:
-        send_email(to_email=email, subject=subject, body=body)
-        logging.info(f"Account deletion confirmation email sent to {email} successfully.")
-    except Exception as e:
-        logging.error(f"Failed to send account deletion email to {email}: {str(e)}")
 
 
