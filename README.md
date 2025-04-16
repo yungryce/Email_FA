@@ -1,87 +1,127 @@
-# Azure Function App for User Registration and Email Notifications
+# Azure Function App for Email Notifications
 
 ## Overview
 
-This Azure Function App provides a serverless solution for handling email requests using queue messages. The app includes an HTTP-triggered function for user registration and a queue-triggered function for sending emails based on user actions (signup, login, logout, and account updates).
+This serverless Azure Function App provides a scalable solution for sending transactional emails based on user actions. The system processes queue messages to deliver personalized emails for user registration, authentication events, account management, and general notifications.
 
 ## Features
 
-- **User Registration**: Accepts user details via an HTTP POST request and validates input.
-- **Queue-based Email Sending**: Utilizes Azure Storage Queue to handle email requests asynchronously.
-- **Dynamic Email Content**: Sends personalized emails based on user actions.
+- **Queue-Triggered Processing**: Asynchronously handles email requests through Azure Storage Queues
+- **Multiple Email Templates**: Supports various notification types (signup, login, logout, password reset, etc.)
+- **Scalable Architecture**: Leverages Azure Functions' serverless model for cost-effective scaling
+- **Secure Email Delivery**: Uses TLS for SMTP communication with configurable email providers
+- **CI/CD Integration**: Automated deployment via GitHub Actions
 
 ## Architecture
 
-The app consists of two main functions:
+![Architecture Diagram](./ARCHITECTURE.md)
 
-1. **UserRequests**: An HTTP-triggered function that processes user registration requests.
-2. **EmailSender**: A queue-triggered function that sends emails based on messages in the Azure Storage Queue.
+The application consists of two main components:
+
+1. **Email Queue**: An Azure Storage Queue that holds pending email requests
+2. **Email Function**: A queue-triggered Azure Function that processes messages and sends emails
+
+## Email Types Supported
+
+- **User Registration**: Welcome emails for new users
+- **Login Notifications**: Security alerts for account access
+- **Logout Confirmations**: Notifications of session termination
+- **Account Deletion**: Confirmation of account removal
+- **Password Management**: Reset requests and change confirmations
+- **Email Verification**: Account verification flows
+- **General Notifications**: Custom user notifications
+
+## Technical Implementation
+
+- Python 3.10+
+- Azure Functions v4
+- Azure Storage Queue
+- SMTP email delivery
 
 ## Prerequisites
 
-- An Azure account with access to Azure Functions and Azure Storage.
-- Python 3.6 or later installed locally for development and testing.
-- Necessary Azure SDKs and libraries installed.
+- Azure subscription
+- SMTP server credentials
+- Python 3.10 or higher (for local development)
 
 ## Setup Instructions
 
 1. **Clone the Repository**:
    ```bash
    git clone <repository-url>
-   cd <repository-directory>
+   cd Email_FA
    ```
 
 2. **Install Dependencies**:
-   Ensure you have the required libraries installed:
    ```bash
-   pip install azure-functions azure-storage-queue
+   pip install -r requirements.txt
    ```
 
 3. **Configure Environment Variables**:
-   Set the following environment variables in your Azure Function App settings or local `.env` file:
-   - `AzureWebJobsStorage`: Connection string for your Azure Storage account.
-   - `SMTP_SERVER`: SMTP server address for sending emails.
-   - `SMTP_PORT`: SMTP server port (usually 587 for TLS).
-   - `SMTP_USER`: Your SMTP username.
-   - `SMTP_PASSWORD`: Your SMTP password.
-   - `SMTP_FROM_EMAIL`: The sender email address (must match a verified sender identity).
+   Create a `local.settings.json` file for local development:
+   ```json
+   {
+     "IsEncrypted": false,
+     "Values": {
+       "AzureWebJobsStorage": "<storage-connection-string>",
+       "FUNCTIONS_WORKER_RUNTIME": "python",
+       "SMTP_SERVER": "smtp.example.com",
+       "SMTP_PORT": "587",
+       "SMTP_USER": "your-username",
+       "SMTP_PASSWORD": "your-password",
+       "SMTP_FROM_EMAIL": "noreply@example.com"
+     }
+   }
+   ```
 
-4. **Deploy the Function App**:
-   Deploy your Function App to Azure using your preferred method (Azure CLI, VS Code, etc.).
+4. **Local Development**:
+   ```bash
+   func start
+   ```
 
-## Usage
+5. **Deploy to Azure**:
+   ```bash
+   func azure functionapp publish emailapp
+   ```
 
-### User Registration
+## KeyVault Integration
 
-To register a new user, send a POST request to the `/register` endpoint with the following JSON body:
+For production environments, secure your credentials using Azure KeyVault:
 
-```json
-{
-    "username": "exampleuser",
-    "email": "user@example.com",
-    "password": "securepassword",
-    "first_name": "First",
-    "last_name": "Last"
-}
+```
+@Microsoft.KeyVault(SecretUri=https://<YourVaultName>.vault.azure.net/secrets/<SecretName>/<SecretVersion>)
 ```
 
-**Response**:
-- On success: `202 Accepted`
-- On failure: `400 Bad Request` with a message indicating missing fields.
+## CI/CD Pipeline
 
-### Email Sending
+This project includes GitHub Actions workflows for continuous deployment:
 
-When a user registers, the `UserRequests` function sends a message to the Azure Storage Queue. The `EmailSender` function processes these messages and sends emails based on the action specified in the queue message.
+- Automatic deployment on push to master branch
+- Python dependency caching for faster builds
+- Azure Functions Core Tools integration
 
-### Supported Actions
-- **signup**: Sends a welcome email to the user.
-- **login**: Sends a login notification email.
-- **logout**: Sends a logout notification email.
-- **account_update**: Sends an email confirming account updates.
+## Helpful CLI Commands
 
-## Logging
+### Fetch App Settings 
+```bash
+func azure functionapp fetch-app-settings <APP_NAME>
+```
 
-The app includes logging for both the user requests and email sending processes. You can view the logs in the Azure portal under the "Log Stream" for your Function App.
+### Deploy Function App
+```bash
+func azure functionapp publish <APP_NAME>
+```
+
+## Testing
+
+To test locally, you can:
+
+1. Add messages to the queue via the Azure Portal
+2. Use the Azure Functions Core Tools to trigger the function with sample data
+
+## Skills Index
+
+For a detailed mapping of technical skills implemented in this project, see [SKILLS-INDEX.md](./SKILLS-INDEX.md).
 
 ## Contributing
 
@@ -89,16 +129,6 @@ Contributions are welcome! Please create a pull request with your changes.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-
-
-## Helpful CLI commands
-### To fetch app settings 
-func azure functionapp fetch-app-settings <APP_NAME>
-### To deploy function app
-func azure functionapp publish <APP_NAME>
-### To reference key from key vault
-@Microsoft.KeyVault(SecretUri=https://<YourVaultName>.vault.azure.net/secrets/<SecretName>/<SecretVersion>)
+This project is licensed under the MIT License.
 
 
