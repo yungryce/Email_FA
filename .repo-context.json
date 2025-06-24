@@ -1,16 +1,213 @@
 {
   "project_identity": {
-    "type": "serverless",
-    "scope": "microservice",
-    "is_independent": true
+    "name": "Email Function App",
+    "type": "project",
+    "scope": "serverless",
+    "description": "Serverless Azure Function App for email notification system with queue-triggered processing and SMTP integration",
+    "is_independent": true,
+    "version": "1.0.0",
+    "curriculum_stage": "advanced"
   },
   "tech_stack": {
     "primary": ["Azure Functions", "Python 3.10+", "Azure Storage Queues"],
-    "secondary": ["SMTP Protocol", "GitHub Actions", "Azure KeyVault"],
-    "key_libraries": ["azure-functions", "azure-storage-queue", "smtplib"]
+    "secondary": ["SMTP Protocol", "GitHub Actions", "Azure KeyVault", "TLS Encryption"],
+    "key_libraries": ["azure-functions", "azure-storage-queue", "smtplib", "json", "logging"],
+    "development_tools": ["Azure Functions Core Tools", "Visual Studio Code", "Git"],
+    "testing_frameworks": ["pytest", "Azure Storage Emulator"]
   },
   "skill_manifest": {
-    "technical": ["Serverless Architecture", "Asynchronous Processing", "Email Integration", "CI/CD"],
-    "domain": ["Cloud Architecture", "Notification Systems", "User Management"]
+    "technical": [
+      "Serverless Architecture",
+      "Asynchronous Processing", 
+      "Email Integration",
+      "CI/CD Pipeline",
+      "Queue Message Processing",
+      "Error Handling",
+      "Security Management",
+      "Cloud Configuration"
+    ],
+    "domain": [
+      "Cloud Architecture", 
+      "Notification Systems", 
+      "User Management",
+      "Event-Driven Architecture",
+      "Microservices Communication"
+    ],
+    "professional": [
+      "DevOps Practices",
+      "Documentation Standards",
+      "Code Organization",
+      "Production Deployment"
+    ],
+    "competency_level": "advanced"
+  },
+  "components": {
+    "email_processor": {
+      "type": "service",
+      "path": "function_app.py",
+      "description": "Main Azure Function for processing queue messages and orchestrating email delivery",
+      "dependencies": ["helper_functions", "azure-functions", "azure-storage-queue"],
+      "interfaces": ["queue_trigger", "email_routing"]
+    },
+    "email_service": {
+      "type": "utility",
+      "path": "helper_functions.py",
+      "description": "SMTP email delivery service with template formatting and error handling",
+      "dependencies": ["smtplib", "email"],
+      "interfaces": ["send_email", "format_content"]
+    },
+    "configuration": {
+      "type": "module",
+      "path": "host.json",
+      "description": "Azure Functions runtime configuration and scaling settings",
+      "dependencies": [],
+      "interfaces": ["function_timeout", "scaling_config"]
+    },
+    "ci_cd_pipeline": {
+      "type": "service",
+      "path": ".github/workflows/",
+      "description": "Automated deployment pipeline with GitHub Actions",
+      "dependencies": ["azure-cli", "python"],
+      "interfaces": ["build", "deploy", "test"]
+    }
+  },
+  "topics": [
+    "Serverless Computing",
+    "Event-Driven Architecture",
+    "Message Queue Processing",
+    "Email Automation",
+    "Cloud Security",
+    "CI/CD Automation",
+    "Error Handling Patterns",
+    "Azure Functions",
+    "SMTP Integration",
+    "Configuration Management"
+  ],
+  "skillLevel": "advanced",
+  "projectStructure": {
+    "architecture_pattern": "event-driven",
+    "directory_structure": {
+      "root": "Azure Function App with modular helper functions",
+      "workflows": "GitHub Actions CI/CD automation",
+      "documentation": "Comprehensive project documentation"
+    },
+    "key_files": [
+      {
+        "path": "function_app.py",
+        "purpose": "Main Azure Function entry point with queue triggers and email routing"
+      },
+      {
+        "path": "helper_functions.py", 
+        "purpose": "SMTP email service utilities and template formatting"
+      },
+      {
+        "path": "host.json",
+        "purpose": "Azure Functions runtime configuration"
+      },
+      {
+        "path": "requirements.txt",
+        "purpose": "Python dependencies and Azure Functions libraries"
+      }
+    ]
+  },
+  "outcomes": {
+    "technicalSkills": [
+      "Azure Functions development and deployment",
+      "Queue-triggered serverless processing",
+      "SMTP protocol implementation",
+      "Asynchronous programming patterns",
+      "Cloud security best practices",
+      "CI/CD pipeline automation",
+      "Error handling and logging"
+    ],
+    "softSkills": [
+      "Problem-solving with distributed systems",
+      "Technical documentation writing",
+      "Code organization and modularity",
+      "Production system design"
+    ],
+    "career_preparation": [
+      "Cloud Solutions Architect",
+      "DevOps Engineer", 
+      "Backend Developer",
+      "Site Reliability Engineer"
+    ],
+    "certifications": [
+      "Azure Developer Associate",
+      "Azure Solutions Architect Expert",
+      "Azure DevOps Engineer Expert"
+    ]
+  },
+  "prerequisites": [
+    "Python programming fundamentals",
+    "Basic understanding of HTTP protocols",
+    "Cloud computing concepts",
+    "Email system basics",
+    "JSON data structures",
+    "Git version control"
+  ],
+  "associatedProjects": {
+    "related": [
+      "authentication-FA",
+      "startstopvm",
+      "imageProcessor-FA"
+    ],
+    "dependencies": [
+      "Azure Storage Account setup",
+      "SMTP server configuration"
+    ],
+    "enables": [
+      "User Management System integration",
+      "Multi-service notification platform",
+      "Event-driven microservices architecture"
+    ]
+  },
+  "files": {
+    "authors_file": "AUTHORS.md",
+    "license_file": "LICENSE.txt", 
+    "readme_file": "README.md",
+    "requirements_file": "requirements.txt",
+    "documentation_files": [
+      "ARCHITECTURE.md",
+      "SKILLS-INDEX.md"
+    ],
+    "test_files": []
+  },
+  "assessment": {
+    "evaluation_criteria": [
+      "Serverless function implementation quality",
+      "Error handling and resilience",
+      "Code organization and modularity",
+      "Documentation completeness",
+      "Security implementation",
+      "CI/CD pipeline effectiveness"
+    ],
+    "deliverables": [
+      "Working Azure Function App",
+      "Email notification system",
+      "CI/CD automation pipeline",
+      "Comprehensive documentation",
+      "Architecture diagrams"
+    ],
+    "peer_review": false
+  },
+  "metadata": {
+    "created_date": "2024-01-01",
+    "last_updated": "2025-06-24",
+    "contributors": [
+      "Chigbu Joshua"
+    ],
+    "tags": [
+      "azure-functions",
+      "serverless",
+      "email-automation", 
+      "queue-processing",
+      "smtp",
+      "ci-cd",
+      "python",
+      "cloud-native"
+    ],
+    "difficulty_rating": 7,
+    "estimated_hours": 24
   }
 }
